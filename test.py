@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from obo import obo
+from go_utils import obo
 from neo4j.v1 import GraphDatabase, basic_auth, CypherError, ResultError
 import pprint
 import json
@@ -31,14 +31,6 @@ def addRelationship(endId,relType,startId):
     results = session.run("MERGE (a:%s {id:{startId}}) MERGE (b:%s {id:{endId}}) MERGE (a)-[r:%s]->(b)"
      % (nodeType,nodeType,relType), {"startId": startId,"endId":endId})
     results.consume()
-#    try:
-#            print results.peek()
-    # # except CypherError:
-    # #      print ("CypherError")
-    # #
-    # # except ResultError:
-    # #     print ("ResultError")
-    # return True
 
 def addNodeProperties(term):
     id = term["id"]
@@ -59,14 +51,12 @@ for term in x.terms:
             for parent in term['is_a']:
                 addRelationship(term["id"],"is_a",parent)
         else:
-            pp.pprint(term)
+            #pp.pprint(term)
             addNode(term)
 
         if 'relationship' in term:
             for relationship in  term["relationship"]:
                 parts = relationship.split(" ")
                 addRelationship(term["id"],parts[0],parts[1])
-
-
         #pp.pprint(term)
-        #addNodeProperties(term)
+        addNodeProperties(term)
